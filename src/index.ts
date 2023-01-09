@@ -70,6 +70,17 @@ async function pingProgram(connection: web3.Connection, payer: web3.Keypair) {
 }
 
 async function transferSOL(connection:web3.Connection, from: web3.Keypair, to: web3.PublicKey, value: number) {
+    const transaction  = new web3.Transaction()
+    transaction.add(
+        web3.SystemProgram.transfer({
+            fromPubkey: from.publicKey,
+            toPubkey: to,
+            lamports: value * web3.LAMPORTS_PER_SOL
+        }),
+    )
+
+    const tx = await web3.sendAndConfirmTransaction(connection, transaction, [from])
+    console.log(tx)
     
 }
 
@@ -79,6 +90,9 @@ async function main() {
     console.log('Public key:', signer.publicKey.toBase58())
 
     await pingProgram(connection, signer)
+
+    const toPubkey = new web3.PublicKey('4XyZF4Po9uUL2Wzt6A89ZL4NYnTBpbL7yP3UkK5rS6hp')
+    await transferSOL(connection, signer, toPubkey, 0.1)
 }
 
 main()
